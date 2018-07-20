@@ -66,11 +66,7 @@ average_treatment_effect = function(forest,
     Y.hat <- forest$Y.hat
     W.orig <- forest$W.orig
     W.hat <- forest$W.hat
-    clusters <- forest$clusters[subset]
-  }
-  
-  if(is.null(predictions)) {
-    predictions <- predict(forest)$predictions
+    clusters <- forest$clusters
   }
   
   if (!("causal_forest" %in% class(forest))) {
@@ -129,7 +125,14 @@ average_treatment_effect = function(forest,
   
   # Retreive pointwise treatment effect predictions from forest, and
   # compute naive average effect estimates (notice that this uses OOB)
-  tau.hat.pointwise <- predictions[subset]
+  if(is.null(predictions)) {
+    predictions <- predict(forest)$predictions
+  }
+  
+  if(!is.null(subset)) {
+    predictions <- predictions[subset]
+  }
+  tau.hat.pointwise <- predictions
   if (target.sample == "all") {
     tau.avg.raw <- mean(tau.hat.pointwise)
   } else if (target.sample == "treated") {
